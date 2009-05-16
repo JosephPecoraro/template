@@ -108,8 +108,12 @@ class Templates
 		elsif @opts[:cat]
 			puts contents
 		else
-			tmp_path = Tempfile.new("template").path
-			f = File.new( "#{tmp_path}#{File.extname(filename)}", "w+" )
+			if @opts[:output]
+				f = File.new( @opts[:output], 'w+' )
+			else				
+				tmp_path = Tempfile.new("template").path
+				f = File.new( "#{tmp_path}#{File.extname(filename)}", "w+" )
+			end
 			f.puts(contents)
 			f.close
 			system( "#{EDITOR} #{f.path}" )
@@ -126,13 +130,20 @@ if $0 == __FILE__
 	trap("INT") { puts; exit }
 	
 	# Parse potential command line arguments
-	options = { :cat => false, :list => false, :edit => false, :new => false }
+	options = {
+		:cat => false,
+		:new => false,
+		:list => false,
+		:edit => false,
+		:output => nil
+	}
 	optionParser = OptionParser.new do |opts|
 		opts.banner = "usage: #{program_name} [option] [files]"
 		opts.on("-c", "--cat", "Print the output to the shell.") { options[:cat] = true }
 		opts.on("-e", "--edit", "Modify a template.") { options[:edit] = true }
 		opts.on("-l", "--list", "List all templates.") { options[:list] = true }
 		opts.on("-n", "--new", "Create a new template.") { options[:new] = true }
+		opts.on("-o FILE", "--output FILE", "Write directly to a file") { |f| options[:output] = f }
 		opts.on_tail("-h", "--help", "Show this message") { puts opts; exit }
 	end
 	
