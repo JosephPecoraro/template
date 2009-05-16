@@ -1,0 +1,147 @@
+#!/usr/bin/env ruby
+# Author: Joseph Pecoraro
+# Date: Saturday May 2, 2009
+# Description: Quick Templates
+
+require 'tempfile'
+require 'optparse'
+
+class Templates
+
+	# Templates within Templates!
+	REPLACEMENTS = {
+		/__DATE__/ => %x{ date +"%A, %B %d, %Y" }.chomp
+	}
+
+	# Template Files
+	TEMPLATE_DIR = File.expand_path('~/.templates');
+	TEMPLATES    = Dir[ TEMPLATE_DIR + '/*' ].map { |f| File.basename(f) }
+	EXACT_KEYS   = TEMPLATES.collect { |t| t.sub(/#{File.extname(t)}$/, '') }
+	EDITOR       = "/usr/bin/mate"
+
+	# Constructor
+	def initialize(args, opts)
+		@opts = opts
+		if @opts[:list]
+			list
+		elsif @opts[:new]
+			create(args)
+		else
+			args.each	do |arg|
+				search(arg)
+			end
+		end
+	end
+	
+	# List all
+	def list
+		puts EXACT_KEYS
+	end
+	
+	# Create
+	def create(name)
+		system( "#{EDITOR} #{TEMPLATE_DIR}/#{name}" )
+	end
+
+	# Search
+	def search(prefix)
+		exact_regex = /^#{prefix}$/i
+		prefix_regex = /^#{prefix}/i
+		choices = EXACT_KEYS.select { |template| template =~ exact_regex }
+		if choices.size == 1
+			open_template( TEMPLATES[ EXACT_KEYS.index(choices[0]) ] )
+		else
+			choices = TEMPLATES.select { |template| template =~ prefix_regex }
+			if choices.size == 1
+				open_template(choices[0])
+			else
+				refine(choices)
+			end
+		end
+	end
+
+	# Refine an ambiguous search
+	def refine(choices)
+
+		# Prompt
+		puts
+		puts "Too Many Choices, Please Pick"
+		puts "  # = Select that template"
+		puts "  q = Quit"
+		puts
+		choices.each_with_index { |choice, idx| puts( "[%d] %s" % [idx, choice] ) }
+		puts
+
+		# Get Valid Input
+		range = Range.new(0, choices.size-1)
+		loop do
+			print ">> "
+			STDOUT.flush
+			input = STDIN.gets.strip
+			return if input == 'q'
+			break if input =~ /^(\d+)$/ && range === input.to_i
+		end
+
+		# Last Regex matched the number
+		open_template( choices[$1.to_i] )
+
+	rescue # ^D on input
+		puts
+		exit
+	end
+
+	# Open a template
+	def open_template(filename, ret=false)
+		full_filename = "#{TEMPLATE_DIR}/#{filename}"
+		if @opts[:edit]
+			system( "#{EDITOR} #{full_filename}" )
+			exit
+		end
+		contents = File.read(full_filename)
+		REPLACEMENTS.each { |key,value| contents.gsub!(key, value) }
+		contents.gsub!(/__FILE:(.*?)__/) do |match|
+			open_template($1, true)
+		end
+
+		if ret
+			return contents
+		elsif @opts[:cat]
+			puts contents
+		else
+			tmp_path = Tempfile.new("template").path
+			f = File.new( "#{tmp_path}#{File.extname(filename)}", "w+" )
+			f.puts(contents)
+			f.close
+			system( "#{EDITOR} #{f.path}" )
+		end
+	end
+
+
+end
+
+
+# When run as as script
+if $0 == __FILE__
+	program_name = $0.split(/\//).last
+	trap("INT") { puts; exit }
+	
+	# Parse potential command line arguments
+	options = { :cat => false, :list => false, :edit => false, :new => false }
+	optionParser = OptionParser.new do |opts|
+		opts.banner = "usage: #{program_name} [option] [files]"
+		opts.on("-c", "--cat", "Print the output to the shell.") { options[:cat] = true }
+		opts.on("-e", "--edit", "Modify a template.") { options[:edit] = true }
+		opts.on("-l", "--list", "List all templates.") { options[:list] = true }
+		opts.on("-n", "--new", "Create a new template.") { options[:new] = true }
+		opts.on_tail("-h", "--help", "Show this message") { puts opts; exit }
+	end
+	
+	# Run the Templates Class or show usage
+	optionParser.parse!
+  if !options[:list] && ARGV.size.zero?
+    puts optionParser
+  else
+    Templates.new(ARGV, options)
+  end
+
+end
