@@ -1,0 +1,33 @@
+### template
+
+A simple templating system that will allow me to quickly create
+the scripts I need, with code snippets that I want to have available,
+so that I don't need to lookup some basic stuff every time.
+
+It also allows me to standardize my file script headers, automatically
+setup the dates, etc.
+
+### Installation
+
+If you haven't yet checked out the source do so with:
+
+    shell> git clone git://github.com/JosephPecoraro/template.git
+    shell> cd template
+
+Then to install:
+
+    shell> sudo rake install
+
+The installation will:
+
+  * copy the executable to `/usr/local/bin/template` (this requires sudo)
+  * copy the templates to `~/.template/`
+
+### Contact Info
+
+Name: Joseph Pecoraro  
+Blog: [http://blog.bogojoker.com][1]  
+Email: [joepeck02@gmail.com][2]
+
+[1]: http://blog.bogojoker.com "Joseph Pecoraro's Blog"
+[2]: mailto:joepeck02@gmail.com "Joseph Pecoraro's Email"
