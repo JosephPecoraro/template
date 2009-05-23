@@ -3,16 +3,16 @@
 # Description: Installation for templates.
 
 # Setup
-verbose(true)
+verbose true
 task :default => :"install"
 
 # install
-desc "[sudo] Install the script and templates."
+desc "Install the script and templates."
 task :install do
 	HOME_DIR = File.expand_path('~') + "/"
 	TEMPLATE_DIR = "#{HOME_DIR}/.templates"
 	puts "Installing the executable:"
-	sh "cp bin/template /usr/local/bin/template"
+	sh "sudo cp bin/template /usr/local/bin/template"
 	puts
 	puts "Installing templates:"
 	sh "mkdir #{TEMPLATE_DIR}" if not File.exists?(TEMPLATE_DIR)
@@ -20,4 +20,3 @@ task :install do
 	puts
 	puts "Installation complete."
 end
-

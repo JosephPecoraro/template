@@ -16,7 +16,7 @@ If you haven't yet checked out the source do so with:
 
 Then to install:
 
-    shell> sudo rake install
+    shell> rake install
 
 The installation will:
 

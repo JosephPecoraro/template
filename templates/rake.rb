@@ -3,6 +3,7 @@ require 'rake/clean'
 CLEAN.include()
 CLOBBER.include()
 
+verbose true
 task :default => :"alcoholic:purchaseAlcohol"
 
 namespace :alcoholic do
