@@ -16,7 +16,7 @@ task :install do
 	puts
 	puts "Installing templates:"
 	mkdir_p TEMPLATE_DIR
-	sh "cp templates/* #{TEMPLATE_DIR}"
+	cp_r 'templates/.', TEMPLATE_DIR
 	puts
 	puts "Installation complete."
 end
