@@ -52,8 +52,15 @@ class Templates
 			open_template( TEMPLATES[ EXACT_KEYS.index(choices[0]) ] )
 		else
 			choices = TEMPLATES.select { |template| template =~ prefix_regex }
-			if choices.size == 1
-				open_template(choices[0])
+			if choices.size.zero?
+				puts
+				puts "No templates found for => #{prefix}"
+				puts "If you would like to create one, execute:"
+				puts
+				puts "  template --new #{prefix}"
+				puts
+			elsif choices.size == 1
+				open_template(choices[0])				
 			else
 				refine(choices)
 			end
@@ -102,7 +109,7 @@ class Templates
 		contents.gsub!(/__FILE:(.*?)__/) do |match|
 			open_template($1, true)
 		end
-
+		
 		if ret
 			return contents
 		elsif @opts[:cat]
@@ -111,8 +118,10 @@ class Templates
 			if @opts[:output]
 				f = File.new( @opts[:output], 'w+' )
 			else				
+				ext = File.extname(filename)
+				ext = ".txt" if ext.empty?
 				tmp_path = Tempfile.new("template").path
-				f = File.new( "#{tmp_path}#{File.extname(filename)}", "w+" )
+				f = File.new( "#{tmp_path}#{ext}", "w+" )
 			end
 			f.puts(contents)
 			f.close

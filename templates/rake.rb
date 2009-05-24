@@ -1,11 +1,9 @@
-require 'rake/clean'
-
-CLEAN.include()
-CLOBBER.include()
-
+__FILE:header.txt__
+# Setup
 verbose true
 task :default => :"alcoholic:purchaseAlcohol"
 
+# Namespace alcoholic
 namespace :alcoholic do
   desc "This task will purchase your Vodka"
   task :purchaseAlcohol do

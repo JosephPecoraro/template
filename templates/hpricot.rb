@@ -1,8 +1,5 @@
 #!/usr/bin/env ruby
-# Author: Joseph Pecoraro
-# Date: __DATE__
-# Description: ___
-
+__FILE:header.txt__
 require 'rubygems'
 require 'hpricot'
 require 'open-uri'
