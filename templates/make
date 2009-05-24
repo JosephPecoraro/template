@@ -1,0 +1,164 @@
+__FILE:header.txt__
+
+#-------------
+#  Variables
+#-------------
+
+CXX    = g++
+CI     = ci -l
+CO     = co -l -f
+OFILES = ConcatStrand.o NullStrand.o Strand.o StrandBody.o TextStrand.o SubStrand.o watcher.o
+HFILES = $(OFILES:.o=.h) error.h
+CFILES = $(OFILES:.o=.cpp) strandtest2.cpp strandtest3.cpp strandtest4.cpp
+OUTS   = strandtest2.out strandtest3.out strandtest4.out
+
+#--------------------
+#  Build Everything   (Default Rule)
+#--------------------
+
+all: strandtest2 strandtest3 strandtest4
+
+
+#------------------------
+#  Pull/Update .h Files
+#------------------------
+
+ConcatStrand.h: StrandBody.h
+	if [ ! -s ConcatStrand.h ]; then $(CO) ConcatStrand.h; fi
+	touch ConcatStrand.h
+
+NullStrand.h: StrandBody.h
+	if [ ! -s NullStrand.h ]; then $(CO) NullStrand.h; fi
+	touch NullStrand.h
+
+Strand.h: StrandBody.h
+	if [ ! -s Strand.h ]; then $(CO) Strand.h; fi
+	touch Strand.h
+
+StrandBody.h: error.h watcher.h
+	if [ ! -s StrandBody.h ]; then $(CO) StrandBody.h; fi
+	touch StrandBody.h
+
+SubStrand.h: StrandBody.h
+	if [ ! -s SubStrand.h ]; then $(CO) SubStrand.h; fi
+	touch SubStrand.h
+
+TextStrand.h: StrandBody.h
+	if [ ! -s TextStrand.h ]; then $(CO) TextStrand.h; fi
+	touch TextStrand.h
+
+watcher.h:; if [ ! -s watcher.h ]; then $(CO) watcher.h; fi
+error.h:;   if [ ! -s error.h   ]; then $(CO) error.h;   fi
+
+
+#-------------------
+#  Pull .cpp Files
+#-------------------
+
+ConcatStrand.cpp:; if [ ! -s ConcatStrand.cpp ]; then $(CO) ConcatStrand.cpp; fi 
+NullStrand.cpp:;   if [ ! -s NullStrand.cpp   ]; then $(CO) NullStrand.cpp;   fi
+Strand.cpp:;       if [ ! -s Strand.cpp       ]; then $(CO) Strand.cpp;       fi
+StrandBody.cpp:;   if [ ! -s StrandBody.cpp   ]; then $(CO) StrandBody.cpp;   fi
+SubStrand.cpp:;    if [ ! -s SubStrand.cpp    ]; then $(CO) SubStrand.cpp;    fi
+TextStrand.cpp:;   if [ ! -s TextStrand.cpp   ]; then $(CO) TextStrand.cpp;   fi
+strandtest2.cpp:;  if [ ! -s strandtest2.cpp  ]; then $(CO) strandtest2.cpp;  fi
+strandtest3.cpp:;  if [ ! -s strandtest3.cpp  ]; then $(CO) strandtest3.cpp;  fi
+strandtest4.cpp:;  if [ ! -s strandtest4.cpp  ]; then $(CO) strandtest4.cpp;  fi
+watcher.cpp:;      if [ ! -s watcher.cpp      ]; then $(CO) watcher.cpp;      fi
+
+
+#------------------
+#  Build .o Files
+#------------------
+
+ConcatStrand.o: ConcatStrand.cpp ConcatStrand.h StrandBody.h
+	$(CXX) -c $(DEBUG) $(CPPFLAGS) $(CXXFLAGS) ConcatStrand.cpp
+
+NullStrand.o: NullStrand.cpp NullStrand.h
+	$(CXX) -c $(DEBUG) $(CPPFLAGS) $(CXXFLAGS) NullStrand.cpp
+
+Strand.o: Strand.cpp Strand.h StrandBody.h ConcatStrand.h SubStrand.h TextStrand.h NullStrand.h
+	$(CXX) -c $(DEBUG) $(CPPFLAGS) $(CXXFLAGS) Strand.cpp
+
+StrandBody.o: StrandBody.cpp StrandBody.h ConcatStrand.h SubStrand.h
+	$(CXX) -c $(DEBUG) $(CPPFLAGS) $(CXXFLAGS) StrandBody.cpp
+
+SubStrand.o: SubStrand.cpp SubStrand.h StrandBody.h
+	$(CXX) -c $(DEBUG) $(CPPFLAGS) $(CXXFLAGS) SubStrand.cpp
+
+TextStrand.o: TextStrand.cpp TextStrand.h
+	$(CXX) -c $(DEBUG) $(CPPFLAGS) $(CXXFLAGS) TextStrand.cpp
+
+strandtest2.o: strandtest2.cpp Strand.h
+	$(CXX) -c $(DEBUG) $(CPPFLAGS) $(CXXFLAGS) strandtest2.cpp
+
+strandtest3.o: strandtest3.cpp Strand.h
+	$(CXX) -c $(DEBUG) $(CPPFLAGS) $(CXXFLAGS) strandtest3.cpp
+
+strandtest4.o: strandtest4.cpp Strand.h
+	$(CXX) -c $(DEBUG) $(CPPFLAGS) $(CXXFLAGS) strandtest4.cpp
+
+watcher.o: watcher.cpp watcher.h
+	$(CXX) -c $(DEBUG) $(CPPFLAGS) $(CXXFLAGS) watcher.cpp
+
+
+#---------------------
+#  Build Executables
+#---------------------
+
+strandtest2: strandtest2.o $(OFILES)
+	$(CXX) -o strandtest2 $(DEBUG) $(CPPFLAGS) $(CXXFLAGS) strandtest2.o $(OFILES)
+
+strandtest3: strandtest3.o $(OFILES)
+	$(CXX) -o strandtest3 $(DEBUG) $(CPPFLAGS) $(CXXFLAGS) strandtest3.o $(OFILES)
+
+strandtest4: strandtest4.o $(OFILES)
+	$(CXX) -o strandtest4 $(DEBUG) $(CPPFLAGS) $(CXXFLAGS) strandtest4.o $(OFILES)
+
+
+#-----------------
+#  Phony Targets
+#-----------------
+
+.PHONY: all clean realclean checkin checkout vars archive zip tar gz gzip bzip
+
+clean:
+	rm -f $(OFILES) strandtest2.o strandtest3.o strandtest4.o core
+
+realclean: clean
+	rm -f strandtest2 strandtest3 strandtest4
+	rm -f strand_source.zip strand_source.tar strand_source.tar.gz strand_source.tar.bz2
+
+checkin:
+	mkdir RCS
+	$(CI) $(CFILES) $(HFILES)
+
+checkout: $(CFILES) $(HFILES)
+
+vars:
+	@echo CXX: $(CXX)
+	@echo CI: $(CI)
+	@echo CO: $(CO)
+	@echo CPPFLAGS: $(CPPFLAGS)
+	@echo CXXFLAGS: $(CXXFLAGS)
+	@echo DEBUG: $(DEBUG)
+	@echo OFILES: $(OFILES)
+	@echo CFILES: $(CFILES)
+	@echo HFILES: $(HFILES)
+	@echo OUTS: $(OUTS)
+
+archive: zip
+
+zip:
+	zip -b . strand_source $(CFILES) $(HFILES) $(OUTS) Makefile
+
+tar:
+	tar -cvf strand_source.tar $(CFILES) $(HFILES) $(OUTS) Makefile
+
+gz:	tar
+	gzip strand_source.tar
+
+gzip: gz
+
+bzip: tar
+	bzip2 strand_source.tar
