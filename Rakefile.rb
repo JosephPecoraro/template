@@ -9,13 +9,13 @@ task :default => :"install"
 # install
 desc "Install the script and templates."
 task :install do
-	HOME_DIR = File.expand_path('~') + "/"
+	HOME_DIR = File.expand_path('~')
 	TEMPLATE_DIR = "#{HOME_DIR}/.templates"
 	puts "Installing the executable:"
 	sh "sudo cp bin/template /usr/local/bin/template"
 	puts
 	puts "Installing templates:"
-	sh "mkdir #{TEMPLATE_DIR}" if not File.exists?(TEMPLATE_DIR)
+	mkdir_p TEMPLATE_DIR
 	sh "cp templates/* #{TEMPLATE_DIR}"
 	puts
 	puts "Installation complete."
