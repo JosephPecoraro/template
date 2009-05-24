@@ -4,7 +4,7 @@
 
 # Setup
 verbose true
-task :default => :"install"
+task :default => :install
 
 # install
 desc "Install the script and templates."
